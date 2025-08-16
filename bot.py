@@ -1,71 +1,118 @@
-import os
 import logging
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Application, CommandHandler, ContextTypes, CallbackQueryHandler, MessageHandler, filters
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 
 # --- CONFIG ---
-BOT_TOKEN = os.getenv("BOT_TOKEN")  # Set this on Render → Environment → BOT_TOKEN
+BOT_TOKEN = "8399076842:AAFQ3M5gj4TmD9ZaeyIfqP9lWcxJPYl6fVo"
+ADMIN_CHAT_ID = 6872304983  # Your Telegram ID
 
+# --- LOGGING ---
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
-logger = logging.getLogger(__name__)
-
-WELCOME_TEXT = (
-    "👋 Welcome to EduEthiopia Bot!\n"
-    "Use the menu below or type /help."
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
 )
 
-HELP_TEXT = (
-    "Commands:\n"
-    "/start – start the bot\n"
-    "/help – show this help\n"
-)
-
-def main_menu():
-    keyboard = [
-        [InlineKeyboardButton("Grade 9", callback_data="grade9"),
-         InlineKeyboardButton("Grade 10", callback_data="grade10")],
-        [InlineKeyboardButton("Support", callback_data="support")]
-    ]
-    return InlineKeyboardMarkup(keyboard)
-
+# --- START MENU ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.effective_chat.send_message(WELCOME_TEXT, reply_markup=main_menu())
+    keyboard = [
+        [InlineKeyboardButton("Grade 9", callback_data="grade9")],
+        [InlineKeyboardButton("Grade 11", callback_data="grade11")],
+        [InlineKeyboardButton("Grade 12", callback_data="grade12")],
+        [InlineKeyboardButton("Teacher Support ❤️", callback_data="support")],
+        [InlineKeyboardButton("Quizzes", callback_data="quizzes")],
+        [InlineKeyboardButton("Ask Question", callback_data="ask")],
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await update.message.reply_text("Welcome to Edu_pia! Choose an option below:", reply_markup=reply_markup)
 
-async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.effective_chat.send_message(HELP_TEXT)
-
-async def on_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
+# --- BUTTON HANDLER ---
+async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
-    data = query.data
-    if data == "support":
-        await query.edit_message_text("Contact @YourUsername for support.")
-    elif data == "grade9":
-        await query.edit_message_text("Coming soon: Grade 9 resources.")
-    elif data == "grade10":
-        await query.edit_message_text("Coming soon: Grade 10 resources.")
-    else:
-        await query.edit_message_text("Unknown selection.")
 
-async def echo_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    # Replies to any non-command text message
-    await update.message.reply_text("I received your message 🙌")
+    # --- Grade 9 ---
+    if query.data == "grade9":
+        text = """
+📘 *Grade 9 Courses*
 
-def build_app():
-    if not BOT_TOKEN:
-        raise RuntimeError("BOT_TOKEN env var is missing.")
-    application = Application.builder().token(BOT_TOKEN).build()
+1. Mathematics ➝ [Click here](https://t.me/eduethiopia_Grade9_Math)
+2. Physics ➝ [Click here](https://t.me/eduethiopia_Grade9_Physics)
+3. Chemistry ➝ [Click here](https://t.me/eduethiopia_Grade9_Chemistry)
+4. Biology ➝ [Click here](https://t.me/eduethiopia_Grade9_Biology)
+5. English ➝ [Click here](https://t.me/eduethiopia_Grade9_English)
+        """
+        await query.edit_message_text(text, parse_mode="Markdown")
 
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("help", help_cmd))
-    application.add_handler(CallbackQueryHandler(on_button))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo_text))
+    # --- Grade 11 ---
+    elif query.data == "grade11":
+        text = """
+📘 *Grade 11 Courses*
 
-    return application
+1. Mathematics ➝ [Click here](https://t.me/eduethiopia_Grade11_Math)
+2. Physics ➝ [Click here](https://t.me/eduethiopia_Grade11_Physics)
+3. Chemistry ➝ [Click here](https://t.me/eduethiopia_Grade11_Chemistry)
+4. Biology ➝ [Click here](https://t.me/eduethiopia_Grade11_Biology)
+5. English ➝ [Click here](https://t.me/eduethiopia_Grade11_English)
+        """
+        await query.edit_message_text(text, parse_mode="Markdown")
 
+    # --- Grade 12 ---
+    elif query.data == "grade12":
+        text = """
+📘 *Grade 12 Courses*
+
+1. Mathematics ➝ [Click here](https://t.me/eduethiopia_Grade12_Math)
+2. Physics ➝ [Click here](https://t.me/eduethiopia_Grade12_Physics)
+3. Chemistry ➝ [Click here](https://t.me/eduethiopia_Grade12_Chemistry)
+4. Biology ➝ [Click here](https://t.me/eduethiopia_Grade12_Biology)
+5. English ➝ [Click here](https://t.me/eduethiopia_Grade12_English)
+        """
+        await query.edit_message_text(text, parse_mode="Markdown")
+
+    # --- Teacher Support ❤️ ---
+    elif query.data == "support":
+        keyboard = [
+            [InlineKeyboardButton("BOA", url="https://www.boa.com/yourpaymentlink")],
+            [InlineKeyboardButton("CBE", url="https://www.cbe.com/yourpaymentlink")],
+            [InlineKeyboardButton("Telebirr", url="https://www.telebirr.com/yourpaymentlink")],
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.edit_message_text("💖 Support your teacher easily. Choose a payment method:", reply_markup=reply_markup)
+
+    # --- Quizzes ---
+    elif query.data == "quizzes":
+        keyboard = [
+            [InlineKeyboardButton("Q1", callback_data="q1")],
+            [InlineKeyboardButton("Q2", callback_data="q2")],
+            [InlineKeyboardButton("Q3", callback_data="q3")],
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await query.edit_message_text("📝 *World-Class STEM Quizzes*\nChoose a question:", reply_markup=reply_markup, parse_mode="Markdown")
+
+    # --- Ask Question ---
+    elif query.data == "ask":
+        text = "❓ *Ask a Question*\n\nAsk your question here:\n[t.me/eduethiopia_ask](https://t.me/eduethiopia_ask)"
+        await query.edit_message_text(text, parse_mode="Markdown")
+
+    # --- Quiz Answers ---
+    elif query.data == "q1":
+        text = "Q1: What is the chemical symbol for water?\n✅ Answer: H₂O"
+        await query.edit_message_text(text)
+
+    elif query.data == "q2":
+        text = "Q2: What planet is known as the Red Planet?\n✅ Answer: Mars"
+        await query.edit_message_text(text)
+
+    elif query.data == "q3":
+        text = "Q3: Who is known as the father of modern physics?\n✅ Answer: Albert Einstein"
+        await query.edit_message_text(text)
+
+# --- MAIN FUNCTION ---
 if __name__ == "__main__":
-    app = build_app()
-    # Long polling (simple + reliable). No webhook needed.
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
+    app = ApplicationBuilder().token(BOT_TOKEN).build()
+    
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CallbackQueryHandler(button_handler))
+    
+    print("Edu_pia Bot is running...")
+    app.run_polling()
